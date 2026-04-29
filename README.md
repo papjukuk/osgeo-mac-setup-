@@ -33,6 +33,7 @@ brew install podman
 podman machine init
 podman machine start
 ```
+<img width="1124" height="178" alt="image" src="https://github.com/user-attachments/assets/f0d3b7a2-da40-4096-ad8e-b7f8b114e489" />
 
 ### 2. Pod 생성
 
@@ -78,6 +79,7 @@ podman run -d --pod osgeo-pod --name geoserver \
 ```bash
 podman stats --no-stream --format "table {{.Name}} {{.CPUPerc}} {{.MemPerc}}"
 ```
+<img width="900" height="240" alt="image" src="https://github.com/user-attachments/assets/8dac2cde-3dd6-4231-9674-473b1b8db880" />
 
 ---
 
