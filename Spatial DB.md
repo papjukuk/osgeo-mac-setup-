@@ -30,7 +30,7 @@ http://localhost:8070
 | 탭 | 항목 | 값 |
 |----|------|----|
 | General | Name | `postgis` |
-| Connection | Host name/address | `postgis` |
+| Connection | Host name/address | `localhost` |
 | Connection | Port | `5432` |
 | Connection | Username | `postgres` |
 | Connection | Password | `postgres` |
@@ -96,27 +96,93 @@ osgeo
   > Extensions
   > postgis  ← 확인
 ```
+<img width="1119" height="629" alt="image" src="https://github.com/user-attachments/assets/0432e493-f437-4279-9fb6-db32b1230c09" />
 
-### ② Functions 수가 700개 이상
 
-```
-osgeo
-  > Schemas
-  > public
-  > Functions  ← 700개 이상이면 정상
-```
+# QGIS + PostgreSQL(PostGIS) 연동하기
 
-### ③ spatial_ref_sys 테이블 생성됨
+
+## 1. QGIS에서 PostgreSQL 연결 설정
+
+QGIS 실행 후 탐색기에서 연결 추가:
 
 ```
-osgeo
-  > Schemas
-  > public
-  > Tables
-  > spatial_ref_sys  ← 확인
+탐색기
+  > PostgreSQL (우클릭)
+  > 새 연결
 ```
 
-> `spatial_ref_sys` 는 **좌표계 정보를 담고 있는 매우 중요한 테이블**입니다.  
-> EPSG 코드, proj4text 등 좌표계 관련 정보가 담겨 있습니다.
+연결 정보 입력:
+
+| 항목 | 값 |
+|------|----|
+| 이름 | `osgeo` |
+| 호스트 | `localhost` |
+| 포트 | `5432` |
+| 데이터베이스 | `osgeo` |
+| 사용자 | `postgres` |
+| 비밀번호 | `postgres` |
+
+> **연결 테스트** 클릭 후 확인 → **확인** 클릭
 
 ---
+
+## 2. 공간정보 1개 올리기 (DB 관리자)
+
+```
+메뉴 > 데이터베이스 > DB 관리자
+  > 제공자 > PostGIS > osgeo > public 선택
+  > 레이어/파일 불러오기
+```
+
+| 항목 | 값 |
+|------|----|
+| 입력 (가져올 파일) | `/data/admin_emd.shp` |
+
+> **확인** 클릭
+
+---
+
+## 3. 공간정보 여러 개 올리기 (공간 처리 툴박스)
+
+```
+메뉴 > 공간 처리 > 공간 처리 툴박스
+  > 검색창에 "PostgreSQL" 입력
+  > "PostgreSQL로 내보내기" 선택
+  > 배치 프로세스로 실행
+```
+
+설정값:
+
+| 항목 | 값 |
+|------|----|
+| 데이터베이스 (연결 이름) | `osgeo` |
+| 입력 레이어 | `/data/admin_sgg.shp`, `/data/admin_sid.shp` |
+| 형태 인코딩 | `CP949` |
+| 스키마 | `public` |
+| 입력 속성의 너비 및 정확도 유지 | ❌ 체크 해제 |
+
+> ⚠️ **"입력 속성의 너비 및 정확도 유지"는 반드시 체크 해제!**
+
+---
+
+## 4. 업로드한 레이어 삭제 (필요시)
+
+```
+탐색기 > PostgreSQL > osgeo > public
+  > 삭제할 레이어 (우클릭)
+  > 관리 > 삭제
+```
+
+---
+
+## 5. 데이터 인코딩 확인 주의사항
+
+| 레이어 | 인코딩 | 좌표계 |
+|--------|--------|--------|
+| 대부분의 shp 파일 | `CP949` (Windows 한글) | `EPSG:5186` |
+| `road_link_geographic` | `UTF-8` | `EPSG:4326` |
+
+> QGIS에서 레이어를 열었을 때 한글이 깨지면  
+> 레이어 속성 > 소스 > 데이터 소스 인코딩을 `CP949` 로 변경
+
